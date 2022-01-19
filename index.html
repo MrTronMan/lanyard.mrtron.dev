@@ -10,10 +10,12 @@
   <code>Check Console</code>
     <script src="https://cdn.jsdelivr.net/gh/xaronnn/js-lanyard/lanyard.js"></script>
     <script type="text/javascript">
-        // rest with single user example
-        lanyard({
-            userId: "355295268716937227"
-        }).then(console.log) // presenceData
+    // websocket with single user example
+    lanyard({
+        userId: "213325478096797697",
+        socket: true,
+        onPresenceUpdate: console.log // presenceData
+      });
     </script>
 </body>
 </html>
