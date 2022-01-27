@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+  <!--
+
+┏━┳━┓┏━━┓
+┃┃┃┃┣╋┓┏╋┳━┳━┳┓
+┃┃┃┃┃┏┫┃┏┫╋┃┃┃┃
+┗┻━┻┻┛┗┻┛┗━┻┻━┛
+
+ Created by MrTron. If you see this POG? -->
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,15 +15,11 @@
     <title>Lanyard</title>
 </head>
 <body>
-  <code>Check Console</code>
+  <pre style="word-wrap: break-word; white-space: pre-wrap;" id="logger"></pre>
+    
+  <!--Importing Lanyard.js and other js files.-->
     <script src="https://cdn.jsdelivr.net/gh/xaronnn/js-lanyard/lanyard.js"></script>
-    <script type="text/javascript">
-    // websocket with single user example
-    lanyard({
-        userId: "355295268716937227",
-        socket: true,
-        onPresenceUpdate: console.log // presenceData
-      });
-    </script>
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js" type="text/javascript"></script>
+    <script src="index.js" type="text/javascript"></script>
 </body>
 </html>
