@@ -55,7 +55,10 @@ async function lanyard(opts) {
         if (typeof opts.userId == "string") {
             const res = await fetch(`${CONSTANTS.API_URL}/users/${opts.userId}`);
             const body = await res.json();
-            document.getElementById("json").textContent = JSON.stringify(body, undefined, 2);
+            var node = new PrettyJSON.view.Node({
+                el:$('#json'),
+                data:body
+              });
             
             if (!body.success) throw new Error(body.error?.message || "An invalid error occured");
 
