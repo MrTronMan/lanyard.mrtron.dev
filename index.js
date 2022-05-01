@@ -1,35 +1,84 @@
 //
 // Created by MrTron / Will
+// uses js-lanyard to request my userID to the Lanyard API (credits to js-lanyard)
 //
-// Displays the Console Log (api request) to a div in the file so my site can find it.
-(function (logger) {
-    console.old = console.log;
-    console.log = function () {
-        var output = "", arg, i;
+"use strict";
 
-        for (i = 0; i < arguments.length; i++) {
-            arg = arguments[i];
-            output += "<span class=\"log-" + (typeof arg) + "\">";
+const CONSTANTS = {
+    API_URL: "https://api.lanyard.rest/v1",
+    WEBSOCKET_URL: "wss://api.lanyard.rest/socket",
+    HEARTBEAT_PERIOD: 1000 * 30
+}
 
-            if (
-                typeof arg === "object" &&
-                typeof JSON === "object" &&
-                typeof JSON.stringify === "function"
-            ) {
-                output += JSON.stringify(arg);   
-            } else {
-                output += arg;   
+async function lanyard(opts) {
+    if (!opts) throw new Error("Specify an options object");
+    if (!opts.userId) throw new Error("Specify a user ID");
+    
+    if (opts.socket) {
+        if (!opts.onPresenceUpdate) throw new Error("Specify onPresenceUpdate callback");
+
+        const supportsWebSocket = "WebSocket" in window || "MozWebSocket" in window;
+        if (!supportsWebSocket) throw new Error( "Browser doesn't support WebSocket connections.",);
+        
+        const socket = new WebSocket(CONSTANTS.WEBSOCKET_URL);
+        const subscription = typeof opts.userId == "string" ? "subscribe_to_id" : "subscribe_to_ids"
+
+        socket.addEventListener("open", () => {
+            socket.send(
+                JSON.stringify({
+                    op: 2,
+                    d: {
+                        [subscription]: opts.userId,
+                    },
+                }),
+            );
+
+            setInterval(() => {
+                socket.send(
+                    JSON.stringify({
+                        op: 3,
+                    }),
+                );
+            }, CONSTANTS.HEARTBEAT_PERIOD);
+        });
+
+        socket.addEventListener("message", ({ data }) => {
+            const { t, d } = JSON.parse(data)
+
+            if (t === "INIT_STATE" || t === "PRESENCE_UPDATE") {
+                opts.onPresenceUpdate(d)
+            }
+        });
+
+        return socket;
+    } else {
+        if (typeof opts.userId == "string") {
+            const res = await fetch(`${CONSTANTS.API_URL}/users/${opts.userId}`);
+            const body = await res.json();
+            document.getElementById("json").textContent = JSON.stringify(body, undefined, 2);
+            
+            if (!body.success) throw new Error(body.error?.message || "An invalid error occured");
+
+            return body.data;
+            console.log(body.data)
+        } else {
+            const val = [];
+
+            for (const userId of opts.userId) {
+                const res = await fetch(`${CONSTANTS.API_URL}/users/${userId}`);
+                const body = await res.json();
+
+                if (!body.success) throw new Error(body.error?.message || "An invalid error occured");
+
+                val.push(body.data)
             }
 
-            output += "</span>&nbsp;";
+            return val;
         }
-
-        logger.innerHTML += output + "<br>";
-        console.old.apply(undefined, arguments);
-    };
-})(document.getElementById("logger"));
-
-//uses js-lanyard to request my userID to the Lanyard API (credits to xaronnn)
+    }
+}
 lanyard({
     userId: "355295268716937227",
-}).then(console.log) // presenceData
+}).then()
+//uses js-lanyard to request my userID to the Lanyard API (credits to js-lanyard)
+
